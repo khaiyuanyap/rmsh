@@ -1,0 +1,14 @@
+[package]
+name = "rmsh"
+version = "1.0.0"
+edition = "2021"
+build = "build.rs"
+
+[dependencies]
+base64 = "0.13.0"
+
+[build-dependencies]
+winres = "0.1.12"
+
+[profile.dev]
+opt-level = 3
