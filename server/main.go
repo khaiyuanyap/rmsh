@@ -33,10 +33,15 @@ const TEMPLATE = `
 			scrollingElement.scrollTop = scrollingElement.scrollHeight;
 		}		
 	</script>
+	<ul>
+		<li>Show Directory - dir /x</li>
+		<li>Change Directory - cd [dir]</li>
+		<li>Test Admin - net session</li>
+	</ul>
     <form action="/api/cmd" method="POST">
-        $<input name="command" type="text">
+        $<input name="command" type="text" placeholder="Send command to all devices">
     </form>
-    <div>%s</div>
+    <div style="border-style: solid;">%s</div>
 </body>
 
 </html>`
@@ -110,7 +115,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 		if err == nil {
 			logs_html := san.Replace(string(logs))
-			terms += fmt.Sprintf(`<div class="term">
+			terms += fmt.Sprintf(`<div>
 		<h3>%s</h3>
 		<p>
 			%s

