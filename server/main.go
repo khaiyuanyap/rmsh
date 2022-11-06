@@ -41,7 +41,7 @@ const TEMPLATE = `
     <form action="/api/cmd" method="POST">
         $<input name="command" type="text" placeholder="Send command to all devices">
     </form>
-    <div style="border-style: solid;">%s</div>
+    <div>%s</div>
 </body>
 
 </html>`
@@ -117,7 +117,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			logs_html := san.Replace(string(logs))
 			terms += fmt.Sprintf(`<div>
 		<h3>%s</h3>
-		<p>
+		<p style="border-style: solid;">
 			%s
 		</p>
 		<form action="/api/cmd?id=%s" method="POST">

