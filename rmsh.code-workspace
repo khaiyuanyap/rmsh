@@ -1,7 +1,13 @@
 {
 	"folders": [
 		{
-			"path": "."
+			"path": "client"
+		},
+		{
+			"path": "metadata"
+		},
+		{
+			"path": "server"
 		}
 	]
 }

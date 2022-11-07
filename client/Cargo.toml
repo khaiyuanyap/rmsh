@@ -2,15 +2,12 @@
 name = "rmsh"
 version = "1.0.0"
 edition = "2021"
-build = "build.rs"
 
 [dependencies]
 base64 = "0.13.0"
 reqwest = { version = "0.11", features = ["blocking", "json", "multipart"] }
 tokio = { version = "1", features = ["full"] }
-
-[build-dependencies]
-winres = "0.1.12"
+winreg = "0.10.1"
 
 [profile.dev]
 opt-level = 3
