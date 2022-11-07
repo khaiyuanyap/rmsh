@@ -99,8 +99,8 @@ func API() {
 	r.HandleFunc("/", Index)
 	r.HandleFunc("/api/cmd", ApiCmd)
 
-	ConsoleLog(HEADER_HTTP, "Web server listening on :80...")
-	ConsoleFatal(HEADER_HTTP, http.ListenAndServe(":80", r))
+	ConsoleLog(HEADER_HTTP, "Web server listening on :8080...")
+	ConsoleFatal(HEADER_HTTP, http.ListenAndServe(":8080", r))
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
